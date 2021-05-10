@@ -1,0 +1,114 @@
+﻿
+@{ 
+    Layout = null;
+}
+<html>
+<head>
+    <title></title>
+    <style>
+        * {
+        
+        padding :0px;
+        margin:0px;
+        
+        }
+        table {
+        margin:5px ;
+        
+        
+        }
+        table {
+        border-left:1px solid black;
+        border-top:1px solid black;
+        text-align:center;
+        }
+
+        td {
+            border-right: 1px solid black;
+            border-bottom: 1px solid black;
+        }
+
+    </style>
+    <script src="~/Content/axios.min.js"></script>
+    <script src="~/Content/vue2.4.2.min.js"></script>
+</head>
+<body>
+    <div id="app">
+     
+        <table class="table table-striped" id="subtb" cellspacing="0" cellpadding="0" >
+            <tr>
+                <td width="20">Name</td>
+                <td width="20">Sex</td>
+                <td width="20">StudentNumber</td>
+                <td width="20">cooke</td>
+            </tr>
+            <tr v-for="list in List">
+                <td>{{list.Name}}</td>
+                <td>{{list.Sex}}</td>
+                <td>{{list.StudentNumber}}</td>
+               <td>修改</td>
+            </tr>
+        </table>
+
+       
+    
+        <script>
+ // 从后台取绘本
+            var vue = new Vue({
+                el: '#subtb',
+                data: {
+                    List: null,
+             
+                },
+                mounted: function () {
+                    this.getEhon()
+                },
+                methods: {
+                    getEhon: function () {
+                        var that = this;
+                        axios.get("../VueAjaxAxios/GetList")
+                            .then(function (response) {//返回类型为list<class>
+                                that.List = response.data.List;
+                             
+                                console.log(that.List);
+                            }).catch(function (reason) {
+                                console.log("error");
+                            });
+                      
+                    },
+
+
+
+
+
+                }
+            });
+        </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+</body>
+
+
+</html>
