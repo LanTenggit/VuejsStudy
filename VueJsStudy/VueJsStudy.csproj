@@ -193,6 +193,8 @@
     <Content Include="Views\VueProject\VueWeb.cshtml" />
     <Content Include="Views\VueAjaxAxios\Index.cshtml" />
     <Content Include="Views\VueAjaxAxios\TestWeb.cshtml" />
+    <Content Include="Views\VueAjaxAxios\VueTableWeb.cshtml" />
+    <Content Include="Views\VueProject\Page.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

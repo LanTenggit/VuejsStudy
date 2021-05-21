@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>dialog标签</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=3.0&ak=pTeC0IZvnpLiWdXUgBzrSUQ0l0gQPcjS"></script>
+    <style>
+      *{margin:0;padding:0;}
+      #map {height:80vh;}
+      #position{
+        height: 10vh;
+        width:100%;
+        text-align:center;
+      }
+      #position span {
+        display:inline-block;
+        height:50px;
+        line-height:50px;
+        margin:10px;
+        text-align:center;
+        width: 80px;
+        background:blue;
+        color:#fff;
+        font-size:16px;
+      }
+	    #dd {
+	    position:fixed;
+	    top:0;
+	    left:0;
+		    z-index: 9999;
+	    height:200px;
+	    width:100%;
+	    background:#fff;}
+      .des {
+        height: 100px;
+        width:3px;
+        background:red;
+        margin:0 auto;
+        transition: all .5s;
+      }
+    </style>
+  </head>
+  <body>
+	  <div id="dd">
+      <div class="des"></div>
+      <div class="text"></div>
+    </div>
+    <div id="map"></div>
+    <div id="position">
+      <span id="startBtn">开始定位</span>
+      <span id="endBtn">结束定位</span>
+      <span id="printData">当前数据</span>
+    </div>
+  </body>
+  <script>
+	  window.addEventListener("deviceorientation", function(event) {
+      // alpha: 围绕垂直手机屏幕的轴转动的旋转角度
+      var rotateDegrees = event.alpha;
+      // gamma: 围绕平行充电口的轴转动的旋转角度
+      var leftToRight = event.gamma;
+      // beta: 围绕平行音量键的轴转动的旋转角度
+      var frontToBack = event.beta;
+      document.querySelector('.des').style.webkitTransform = 'rotate(-' + rotateDegrees + 'deg)';
+      document.querySelector('.text').innerHTML = rotateDegrees + '-' + leftToRight + '-' + frontToBack;
+    }, true);
+    let startBtn = document.querySelector('#startBtn');
+    let endBtn = document.querySelector('#endBtn');
+    let printData = document.querySelector('#printData');
+    let map = new BMap.Map("map");
+    let timeId = null;
+    map.centerAndZoom(new BMap.Point(116.404, 39.915), 11);
+    map.enableScrollWheelZoom(true);
+    let position = [new BMap.Point(114.02597366, 22.54605355), new BMap.Point(114.02597366, 22.54605355), 111];
+  
+	function getLocation() {
+    new BMap.Geolocation().getCurrentPosition(function (r) {
+      if (this.getStatus() == BMAP_STATUS_SUCCESS) {
+        console.log(r.point.lng);
+        console.log(r.point.lat);
+        document.querySelector('#dd').innerHTML = r.point.lng + '-' + r.point.lat;
+        position.push(new BMap.Point(r.point.lat, r.point.lng));
+      }
+      else {
+        alert('failed' + this.getStatus());
+      }
+    }, {enableHighAccuracy: true});
+	}
+
+  startBtn.onclick = function () {
+    position = [];
+    alert('开始！');
+    timeId = setInterval(getLocation, 3000);
+  };
+
+  endBtn.onclick = function () {
+    clearInterval(timeId);
+    let driving = new BMap.DrivingRoute(map, {renderOptions:{map: map, autoViewport: true}});
+    let start = new BMap.Point(position[0].lat, position[0].lng);
+    let end = new BMap.Point(position[position.length - 1].lat, position[position.length - 1].lng);
+    let waypoints = position.slice(1, (position.length - 1));
+    let Bpoints = [];
+    waypoints.forEach(item => {
+      Bpoints.push(new BMap.Point(item.lat, item.lng));
+    });
+    driving.search(start, end, {waypoints: [...Bpoints]});//waypoints表示途经点
+    alert('完成！');
+  };
+  printData.onclick = function () {
+    alert(JSON.stringify(position));
+  };
+  </script>
+</html>

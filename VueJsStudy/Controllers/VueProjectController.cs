@@ -23,5 +23,12 @@ namespace VueJsStudy.Controllers
             return View();
 
         }
+
+
+        public ActionResult Page() {
+
+            return View();
+
+        }
     }
 }

@@ -1,0 +1,243 @@
+﻿
+@{ 
+
+    Layout = null;
+
+
+}
+
+<!DOCTYPE html>
+<html lang="en" xmlns:v-bind="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理页面</title>
+  
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <link href="css/dashboard.css" rel="stylesheet">
+    <script src="~/Content/Vue.js"></script>
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+   
+
+    <script src="https://cdn.staticfile.org/vue-router/2.7.0/vue-router.min.js"></script>
+
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+    <!-- 异步提交的库 -->
+    <script src="js/vue-resource.min.js"></script>
+    <style>
+        .page-div-style {
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- container自适应 -->
+    <div class="container">
+        <!-- 为表格添加基础样式 ，
+            .table为任意<table>添加基本样式，
+            .table-striped可以给tbody之内的每一行添加斑马条纹样式
+            .table-bordered为表格和其中的每个单元格增加边框
+        -->
+
+
+        <table class="table table-bordered">
+            <!-- 表格标题行的容器元素，用来识别表格列 -->
+            <thead>
+                <tr>
+                    <!-- 特殊的表格单元格，用来识别行或列 -->
+                    <th>序号</th>
+                    <th>用户名</th>
+                    <th>昵称</th>
+                    <th>手机号</th>
+                    <th>邮箱</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <!-- 表格主题中的表格行的容器元素 -->
+            <tbody id="example">
+                <!-- 一组出现在单行单元格的容器元素 -->
+                <tr v-for="item in items">
+                    <td> {{ item.num }}</td>
+                    <td> {{ item.username }}</td>
+                    <td> {{ item.avatar }}</td>
+                    <td> {{ item.phone }}</td>
+                    <td> {{ item.email }}</td>
+                    <td>
+                        <!--<button class="btn btn-warning" v-bind:value="item.id" v-on:click="reviewClick">
+                            审核
+                        </button>-->
+                        <button class="btn btn-warning" v-bind:value="item.id" v-on:click="editorClick">
+                            编辑
+                        </button>
+                        <!--
+                             data-target：想要在页面上加载的模拟框的目标。
+                             data-toggle：用于打开模态窗口。
+                         -->
+                        <button class="btn btn-warning" v-bind:value="item.id" v-on:click="deleteClick">
+                            删除
+                        </button>
+
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="page-div-style" id="page">
+            <nav aria-label="Page navigation example">
+                <ul class="pagination">
+                    <li class="page-item" v-show="isShowPrevious">
+                        <a class="page-link" v-on:click="previous">Previous</a>
+                    </li>
+                    <li class="page-item" v-for="item in pageCounts" v-on:click="pageClick"
+                        v-bind:class="{active : item.isActive}">
+                        <a class="page-link">{{item.pages}}</a>
+
+                    <li class="page-item">
+                        <a class="page-link" v-show="isShowNext" v-on:click="next">Next</a>
+                    </li>
+                </ul>
+            </nav>
+
+
+        </div>
+
+    </div>
+    <script>
+        var v = new Vue({
+            el: '#page',
+            data: {
+                pageCounts: [],
+                curPage: 1,
+                start: 1,
+                end: 5,
+                total: 0,
+                pageCount: 5,
+                pages: 0,
+                isShowPrevious: false,
+                isShowNext: false,
+            },
+            methods: {
+                next() {
+                    v.curPage++;
+                    var param = { "pageCount": v.pageCount, "curPage": v.curPage, "total": v.total }
+                    sendPost(param);
+                },
+                previous() {
+                    v.curPage--;
+                    var param = { "pageCount": v.pageCount, "curPage": v.curPage, "total": v.total }
+                    sendPost(param);
+                },
+                pageClick(event) {
+                    //
+                    v.curPage = event.target.innerHTML;
+                    var param = { "pageCount": v.pageCount, "curPage": v.curPage, "total": v.total }
+                    sendPost(param);
+                    console.log(event.target.innerHTML);
+                }
+            }
+        })
+        var vm = new Vue({
+            el: '#example',
+            data: {
+                items: [],
+            },
+            methods: {
+                reviewClick(event) {
+                    //获取id
+
+                },
+                editorClick(event) {
+                    //获取id
+                    //console.log(event.target.value);
+                    var userIframe = window.parent.document.getElementById('userIframe');
+                    userIframe.src = "user_info.html?id=" + event.target.value;
+                    //window.location.href = "user_info.html?id=" + event.target.value;
+                },
+                deleteClick(event) {
+                    Vue.http.get('/deleteUserById/' + event.target.value).then(function (res) {
+                        console.log(JSON.parse(res.bodyText));
+                        var param = { "pageCount": v.pageCount, "curPage": v.curPage, "total": v.total }
+                        sendPost(param);
+                    }, function (res) {
+
+                    })
+                    console.log("删除" + event.target.value);
+                },
+            }
+        })
+        var param = { "pageCount": v.pageCount, "curPage": v.curPage, "total": v.total }
+
+        sendPost(param);
+
+        function sendPost(param) {
+            Vue.http.post('/GetTableTest', param).then(function (res) {
+                //请求成功
+                var result = JSON.parse(res.bodyText);
+                var data = result[0];
+                var sum = result[1];
+                v.total = Math.ceil((sum.total / sum.pageCount));
+                if (v.total < 5)
+                    v.end = v.total;
+                //将分页的数据清空为0
+                v.pageCounts.length = 0;
+                //判断上一页、下一页是否显示
+                if (sum.curPage == 1 && v.total == 1) {
+                    v.isShowPrevious = false;
+                    v.isShowNext = false;
+                } else if (sum.curPage == 1 && v.total != 1 && v.total != 0) {
+                    v.isShowPrevious = false;
+                    v.isShowNext = true;
+                } else if (sum.curPage == v.total) {
+                    v.isShowPrevious = true;
+                    v.isShowNext = false;
+                } else {
+                    v.isShowPrevious = true;
+                    v.isShowNext = true;
+                }
+                if (v.curPage == v.end && v.end < v.total) {
+                    v.start++;
+                    v.end++;
+                } else if (v.curPage == v.start && v.start > 1) {
+                    v.start--;
+                    v.end--;
+                }
+                //获取显示的椰树
+                for (var i = v.start; i <= v.end; i++) {
+                    v.pageCounts.push({
+                        pages: i,
+                        isActive: i == v.curPage ? true : false,
+                    })
+                }
+
+                //获取服务端传递过来的数据，
+                vm.items.length = 0;
+                for (var i = 0; i < data.length; i++) {
+                    //触发数组更新
+                    vm.items.push({
+                        num: (parseInt([i]) + 1),
+                        username: data[i].username,
+                        phone: data[i].phone,
+                        email: data[i].email,
+                        avatar: data[i].avatar,
+                        id: data[i].id,
+                    })
+                }
+
+
+            }
+                ,
+
+                function (res) {
+                    //请求失败
+                }
+            );
+        }
+    </script>
+</body>
+
+</html>
+
