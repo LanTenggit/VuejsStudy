@@ -63,6 +63,16 @@
             margin: 0px 4px;
             font-size: 12px;
         }
+
+        table {
+        border-top:1px solid black;
+        border-left:1px solid black;
+        }
+        td {
+        border-right:1px solid black;
+        border-bottom:1px solid black;
+        text-align:center;
+        }
     </style>
 </head>
 <body>
@@ -97,12 +107,12 @@
         </ul>
     </div>
     <script type="text/javascript">
+        List: null
 
-
-        var vue = new Vue({
+        var vue1 = new Vue({
             el: '#app',
             data: {
-                List: null,
+                List: null
 
             },
             mounted: function () {
@@ -147,16 +157,55 @@
                 },
                 pageClick: function () {
                     console.log('现在在' + this.cur + '页');
-
                     var that = this;
-                    axios.get("../VueAjaxAxios/GetList2")
+                    axios.get('../VueAjaxAxios/GetList2', {
+                        params: {
+                            id: 123,
+                            name: 'Henry',
+                        },
+                        //timeout: 6000,
+                        //其他相关配置
+                    })
                         .then(function (response) {//返回类型为list<class>
-                            that.List = response.data.List;
+                            console.log(response.data.List);
 
-                            console.log(that.List);
-                        }).catch(function (reason) {
-                            console.log("error");
-                        });
+                            //List.push(response.data.List);
+                            vue1.data = response.data;
+                            console.log(vue1.data);
+
+                        //    var vue = new Vue({
+                        //        el: '#app',
+                        //        data: {
+                        //            List: response.data.List
+                        //        }
+                        //        ,
+                        //        mounted: function () {
+                        //            this.getEhon()
+                        //        }
+                        //        , methods: {
+                        //            getEhon: function () {
+                        //                var that = this;
+                        //                that.List = response.data.List;
+                        //                //axios.get("../VueAjaxAxios/GetList")
+                        //                //    .then(function (response) {//返回类型为list<class>
+                        //                //        that.List = response.data.List;
+
+                        //                //        console.log(that.List);
+                        //                //    }).catch(function (reason) {
+                        //                //        console.log("error");
+                        //                //    });
+
+                        //            },
+                        //        }
+
+                        //        })
+
+                        //    //console.log(that.List);
+                        })
+                        //.catch(function (reason) {
+                        //    console.log("error" + reason);
+                        //});
+
                 }
             },
 

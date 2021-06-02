@@ -1,0 +1,325 @@
+﻿@{
+    Layout = null;
+}
+<html>
+<head>
+    <title>
+        Element Vue Table
+    </title>
+    <style type="text/css">
+        .demo-table-expand {
+            font-size: 0;
+        }
+
+       .demo-table-expand label {
+                width: 90px;
+                color: #99a9bf;
+       }
+
+      .demo-table-expand .el-form-item {
+                margin-right: 0;
+                margin-bottom: 0;
+                width: 45%;
+       }
+    </style>
+    <link href="~/Content/index.css" rel="stylesheet" />
+    <script src="~/Content/Vue2.6.12.js"></script>
+    <script src="~/Content/axios.min.js"></script>
+    <script src="~/Content/Element.js"></script>
+</head>
+<body>
+    <div id="app">
+        <template>
+            <div>
+                <el-table :data="tableData"
+                              :span-method="arraySpanMethod"
+                              border
+                              style="width: 100%">
+                        <el-table-column prop="id"
+                                         label="ID"
+                                         width="180">
+                        </el-table-column>
+                        <el-table-column prop="name"
+                                         label="姓名">
+                        </el-table-column>
+                        <el-table-column prop="amount1"
+                                         sortable
+                                         label="数值 1">
+                        </el-table-column>
+                        <el-table-column prop="amount2"
+                                         sortable
+                                         label="数值 2">
+                        </el-table-column>
+                        <el-table-column prop="amount3"
+                                         sortable
+                                         label="数值 3">
+                        </el-table-column>
+                    </el-table>
+
+                <el-table :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase())|| data.id.toLowerCase().includes(search.toLowerCase()))"
+                          :span-method="objectSpanMethod"
+                          border
+                          height="300"
+                          :summary-method="getSummaries"
+                          show-summary
+                          style="width: 100%; margin-top: 20px">
+                    @*列中展开值  vusjs 版本要2.6.12*@
+                    <el-table-column type="expand">
+                        <template slot-scope="props">
+                            <el-form label-position="left" inline class="demo-table-expand">
+                                <el-form-item label="商品ID">
+                                    <span>{{ props.row.id }}</span>
+                                </el-form-item>
+                                <el-form-item label="姓名">
+                                    <span>{{ props.row.name }}</span>
+                                </el-form-item>
+                                <el-form-item label="数值1">
+                                    <span>{{ props.row.amount1 }}</span>
+                                </el-form-item>
+                                <el-form-item label="数值2">
+                                    <span>{{ props.row.amount2 }}</span>
+                                </el-form-item>
+                                <el-form-item label="数值3">
+                                    <span>{{ props.row.amount3 }}</span>
+                                </el-form-item>
+                            </el-form>
+                        </template>
+                    </el-table-column>
+
+
+                    <el-table-column prop="id"
+                                     label="ID"
+                                     width="180">
+                    </el-table-column>
+                    <el-table-column prop="name"
+                                     label="姓名">
+                    </el-table-column>
+                    <el-table-column prop="amount1"
+                                     sortable
+                                     label="数值 1（元）">
+                    </el-table-column>
+                    <el-table-column prop="amount2"
+                                     label="数值 2（元）">
+                    </el-table-column>
+                    <el-table-column prop="amount3"
+                                     label="数值 3（元）">
+                    </el-table-column>
+                    @*///搜索修改删除*@
+                    <el-table-column align="right">
+                        <template slot="header" slot-scope="scope">
+                            <el-input v-model="search"
+                                      size="mini"
+                                      placeholder="输入关键字搜索" />
+                        </template>
+                        <template slot-scope="scope">
+                            <el-button size="mini"
+                                      v-on:click="handleEdit(scope.$index, scope.row)">Edit</el-button>
+                            <el-button size="mini"
+                                       type="danger"
+                                       v-on:click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                        </template>
+                    </el-table-column>
+
+                </el-table>
+
+               
+
+            </div>
+        </template>
+    </div>
+
+
+    <div id="Page">
+        <template>
+            <div class="block">
+                <span class="demonstration">完整功能</span>
+                <el-pagination size-change="handleSizeChange"
+                               current-change ="handleCurrentChange"
+                               :current-page="currentPage4"
+                               :page-sizes="[100, 200, 300, 400]"
+                               :page-size="100"
+                               layout="total, sizes, prev, pager, next, jumper"
+                               :total="400">
+                </el-pagination>
+            </div>
+      </template>
+</div>
+
+    <script type="text/javascript">
+
+        var Main = {
+            mounted: function () {
+                this.getEhon()
+            },
+
+            data() {
+                return {
+                    tableData: [{
+                        id: '12987122',
+                        name: '王小龙',
+                        amount1: '234',
+                        amount2: '3.2',
+                        amount3: 10
+                    }, {
+                        id: '12987123',
+                        name: '王小龙',
+                        amount1: '165',
+                        amount2: '4.43',
+                        amount3: 12
+                    }, {
+                        id: '12987124',
+                        name: '王小虎',
+                        amount1: '324',
+                        amount2: '1.9',
+                        amount3: 9
+                    }, {
+                        id: '12987125',
+                        name: '王小虎',
+                        amount1: '621',
+                        amount2: '2.2',
+                        amount3: 17
+                    }, {
+                        id: '12987126',
+                        name: '王小刚',
+                        amount1: '539',
+                        amount2: '4.1',
+                        amount3: 15
+                    }],
+                    search: ''
+                   ,  data: []
+                };
+            
+            },
+            methods: {
+
+
+                getEhon: function () {
+                    var that = this;
+                    axios.get("../VueAjaxAxios/GetVueElement")
+                        .then(function (response) {//返回类型为list<class>
+                            that.List = response.data.List;
+                            this.data = response.data.List;
+                            console.log(data);
+                        
+                            
+                        }).catch(function (reason) {
+                            console.log("error" + reason);
+                        });
+
+                },
+
+              
+
+                //统计
+                getSummaries(param) {
+                    const { columns, data } = param;
+                    const sums = [];
+                    columns.forEach((column, index) => {
+                        if (index === 1) {
+                            sums[index] = '总价';
+                            return;
+                        }
+                        if (index === 0 || index === 6) {
+                            sums[index] = '';
+                            return;
+                        }
+                        const values = data.map(item => Number(item[column.property]));
+                        if (!values.every(value => isNaN(value))) {
+                            sums[index] = values.reduce((prev, curr) => {
+                                const value = Number(curr);
+                                if (!isNaN(value)) {
+                                    return prev + curr;
+                                } else {
+                                    return prev;
+                                }
+                            }, 0);
+                            sums[index] += ' 元';
+                        } else {
+                            sums[index] = 'N/A';
+                        }
+                    });
+
+                    return sums;
+                },
+
+
+                //跨列
+                arraySpanMethod({ row, column, rowIndex, columnIndex }) {
+                    if (rowIndex % 2 === 0) {
+                        if (columnIndex === 0) {
+                            return [1, 2];
+                        } else if (columnIndex === 1) {
+                            return [0, 0];
+                        }
+                    }
+                },
+                //跨行
+                objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+                    if (columnIndex === 1) {
+                        if (rowIndex % 2 === 0) {
+                            return {
+                                rowspan: 2,
+                                colspan: 1
+                            };
+                        } else {
+                            return {
+                                rowspan: 0,
+                                colspan: 0
+                            };
+                        }
+                    }
+                }
+
+               //Edit
+               , handleEdit(index, row) {
+                        console.log(index, row);
+                },
+               //Delete
+               handleDelete(index, row) {
+                        console.log(index, row);
+               }
+              
+        
+            }
+
+        };
+
+
+        var Ctor = Vue.extend(Main)
+        new Ctor().$mount('#app')
+
+
+        var MainPage={
+            methods: {
+                handleSizeChange(val) {
+                    console.log(`每页 ${val} 条`);
+                },
+                handleCurrentChange(val) {
+                    console.log(`当前页: ${val}`);
+                }
+            },
+            data() {
+                return {
+                    currentPage1: 5,
+                    currentPage2: 5,
+                    currentPage3: 5,
+                    currentPage4: 4
+                };
+            }
+        }
+        
+
+        var PageCtor = Vue.extend(MainPage);
+        new PageCtor().$mount('#Page')
+      
+
+
+
+
+    </script>
+
+
+</body>
+
+
+</html>

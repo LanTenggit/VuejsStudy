@@ -27,7 +27,35 @@ namespace VueJsStudy.Controllers
 
         public ActionResult Page() {
 
+          
+
+
             return View();
+
+        }
+
+
+        public ActionResult Query() {
+
+
+
+
+
+            return View();
+        }
+
+
+        public ActionResult Element_Vue() {
+
+
+
+
+
+
+
+            return View();
+
+
 
         }
     }
